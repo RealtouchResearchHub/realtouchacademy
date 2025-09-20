@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtouch Academy - Lesson Plan Generator</title>
+    <meta name="description" content="Professional lesson plan generator for Realtouch Academy - Create curriculum-aligned lessons for KS2, KS3, KS4, 11+ and GCSE preparation">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    
+    <!-- React and dependencies -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .print-slide { page-break-after: always; }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+        
+        // Icon components
+        const ChevronLeft = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>;
+        const ChevronRight = () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>;
+        const Play = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M19 10a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const Users = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>;
+        const Clock = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const Target = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>;
+        const BookOpen = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>;
+        const Download = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>;
+
+        const LessonPlanGenerator = () => {
+            const [formData, setFormData] = useState({
+                subject: '',
+                keyStage: '',
+                topic: '',
+                duration: '60',
+                classSize: '12'
+            });
+            
+            const [generatedLesson, setGeneratedLesson] = useState(null);
+            const [currentSlide, setCurrentSlide] = useState(0);
+            const [isGenerating, setIsGenerating] = useState(false);
+
+            const curriculumData = {
+                KS2: {
+                    Maths: [
+                        'Number and Place Value', 'Addition and Subtraction', 'Multiplication and Division', 
+                        'Fractions (including decimals and percentages)', 'Measurement', 'Geometry - Properties of shapes', 
+                        'Geometry - Position and direction', 'Statistics'
+                    ],
+                    English: [
+                        'Reading Comprehension', 'Creative Writing', 'Grammar and Punctuation', 'Spelling', 
+                        'Speaking and Listening', 'Poetry', 'Handwriting', 'Vocabulary Building'
+                    ],
+                    'IT/AI': [
+                        'Basic Computer Skills', 'Introduction to Coding', 'Digital Citizenship', 'Using Technology Safely',
+                        'Creating Digital Content', 'Problem Solving with Technology'
+                    ],
+                    'Digital Skills': [
+                        'Keyboard Skills', 'Internet Research', 'Digital Communication', 'File Management',
+                        'Presentation Software', 'Digital Art and Design'
+                    ]
+                },
+                KS3: {
+                    Maths: [
+                        'Number', 'Algebra', 'Ratio and Proportion', 'Geometry and Measures', 
+                        'Probability', 'Statistics', 'Working with coordinates', 'Sequences'
+                    ],
+                    English: [
+                        'Reading', 'Writing', 'Grammar', 'Literature', 'Language Analysis', 
+                        'Creative Expression', 'Media Studies', 'Drama and Performance'
+                    ],
+                    'IT/AI': [
+                        'Programming Fundamentals', 'Data and Information', 'Computer Networks', 'AI Concepts',
+                        'Algorithms and Logic', 'Digital Systems', 'Cybersecurity Basics'
+                    ],
+                    'Digital Skills': [
+                        'Advanced Office Applications', 'Database Management', 'Web Design Basics', 
+                        'Digital Media Production', 'Online Collaboration Tools', 'Digital Project Management'
+                    ]
+                },
+                KS4: {
+                    Maths: [
+                        'Number', 'Algebra', 'Ratio, Proportion and Rates of Change', 'Geometry and Measures', 
+                        'Probability', 'Statistics', 'Trigonometry', 'Quadratic Equations', 'Graphs and Functions'
+                    ],
+                    English: [
+                        'Language Paper 1 - Creative Reading and Writing', 'Language Paper 2 - Writers Viewpoints', 
+                        'Literature Paper 1 - Modern Prose/Drama', 'Literature Paper 2 - Poetry and Unseen Poetry', 
+                        'Creative Writing', 'Spoken Language Presentation'
+                    ],
+                    'IT/AI': [
+                        'Advanced Programming', 'Machine Learning Basics', 'Data Science Introduction', 
+                        'AI Ethics', 'Computer Science Theory', 'Software Development', 'Computational Thinking'
+                    ],
+                    'Digital Skills': [
+                        'Professional Digital Communication', 'Advanced Database Design', 'Web Development',
+                        'Digital Marketing', 'E-commerce', 'Digital Entrepreneurship'
+                    ]
+                },
+                '11+': {
+                    Maths: [
+                        'Arithmetic', 'Problem Solving', 'Mental Maths', 'Word Problems', 'Logic Puzzles',
+                        'Shape and Space', 'Data Handling', 'Reasoning'
+                    ],
+                    English: [
+                        'Reading Comprehension', 'Creative Writing', 'Grammar', 'Vocabulary', 
+                        'Comprehension Skills', 'Verbal Reasoning', 'Writing Techniques'
+                    ],
+                    'IT/AI': [
+                        'Introduction to Programming', 'Logic and Reasoning', 'Basic AI Concepts',
+                        'Digital Problem Solving', 'Technology Awareness'
+                    ],
+                    'Digital Skills': [
+                        'Computer Basics', 'Internet Safety', 'Research Skills', 'Basic Office Skills',
+                        'Digital Presentation', 'Online Learning Tools'
+                    ]
+                },
+                'GCSE': {
+                    Maths: [
+                        'Foundation: Basic Number Skills', 'Foundation: Basic Algebra', 'Foundation: Basic Geometry',
+                        'Higher: Advanced Algebra', 'Higher: Advanced Geometry', 'Higher: Calculus Introduction',
+                        'Statistics and Probability', 'Problem Solving Techniques'
+                    ],
+                    English: [
+                        'Language Component 1: Reading', 'Language Component 2: Writing', 
+                        'Literature Component 1: Modern Drama/Prose', 'Literature Component 2: Poetry',
+                        'Spoken Language Assessment', 'Creative Writing Skills'
+                    ],
+                    'IT/AI': [
+                        'GCSE Computer Science Theory', 'Programming Projects', 'AI and Society',
+                        'Data Structures', 'Algorithms', 'System Architecture'
+                    ],
+                    'Digital Skills': [
+                        'BTEC Digital Information Technology', 'Digital Graphics and Animation',
+                        'Website Development', 'Digital Business', 'Data Analysis'
+                    ]
+                }
+            };
+
+            const learningObjectivesData = {
+                'Number and Place Value': [
+                    'Read, write, order and compare numbers up to 10,000,000',
+                    'Understand the value of each digit in multi-digit numbers',
+                    'Round any whole number to a required degree of accuracy'
+                ],
+                'Fractions (including decimals and percentages)': [
+                    'Compare and order fractions with different denominators',
+                    'Add and subtract fractions with different denominators',
+                    'Convert between fractions, decimals and percentages'
+                ],
+                'Algebra': [
+                    'Use letter symbols to represent unknown numbers or variables',
+                    'Simplify algebraic expressions by collecting like terms',
+                    'Solve simple linear equations with one unknown'
+                ],
+                'Reading Comprehension': [
+                    'Identify key information and themes from texts',
+                    'Make inferences based on evidence from the text',
+                    'Analyze how authors use language for effect'
+                ],
+                'Creative Writing': [
+                    'Plan and structure creative writing effectively',
+                    'Use varied vocabulary and sentence structures for impact',
+                    'Create engaging characters, settings and plots'
+                ],
+                'Programming Fundamentals': [
+                    'Understand basic programming concepts and terminology',
+                    'Write simple programs using sequence, selection and iteration',
+                    'Debug and test programs to ensure they work correctly'
+                ],
+                'Grammar and Punctuation': [
+                    'Use a wide range of punctuation marks correctly',
+                    'Identify and use different sentence structures',
+                    'Apply grammatical rules consistently in writing'
+                ],
+                'Statistics': [
+                    'Collect, organize and interpret data effectively',
+                    'Calculate and interpret measures of average',
+                    'Create and analyze different types of graphs and charts'
+                ],
+                'default': [
+                    'Understand the key concepts and principles of the topic',
+                    'Apply knowledge to solve problems and complete tasks',
+                    'Demonstrate understanding through practical examples'
+                ]
+            };
+
+            const generateLessonContent = () => {
+                const { subject, keyStage, topic, duration, classSize } = formData;
+                
+                const objectives = learningObjectivesData[topic] || learningObjectivesData['default'];
+                
+                const generateHomework = () => {
+                    const homeworkTasks = [];
+                    
+                    if (subject === 'Maths') {
+                        homeworkTasks.push(
+                            `Complete practice worksheet on ${topic} (10-15 questions)`,
+                            `Research real-world applications of ${topic} and write 3 examples`,
+                            `Create your own word problems related to ${topic}`,
+                            `Review class notes and practice any challenging areas`
+                        );
+                    } else if (subject === 'English') {
+                        homeworkTasks.push(
+                            `Read assigned text related to ${topic} and answer comprehension questions`,
+                            `Write a creative piece incorporating techniques learned about ${topic}`,
+                            `Find 3 examples of ${topic} in books, articles, or media you encounter`,
+                            `Complete grammar exercises focusing on today's lesson content`
+                        );
+                    } else if (subject === 'IT/AI' || subject === 'Digital Skills') {
+                        homeworkTasks.push(
+                            `Complete online coding exercises or digital skills practice related to ${topic}`,
+                            `Research and write a short report (200 words) on ${topic}`,
+                            `Practice the digital skills demonstrated in today's lesson`,
+                            `Explore additional online resources about ${topic} (with safe browsing)`
+                        );
+                    }
+                    
+                    return homeworkTasks.slice(0, 3);
+                };
+                
+                const lessonStructure = {
+                    title: `${subject} - ${topic}`,
+                    keyStage: keyStage,
+                    duration: `${duration} minutes`,
+                    classSize: `${classSize} students`,
+                    learningObjectives: objectives,
+                    homework: generateHomework(),
+                    slides: [
+                        {
+                            type: 'title',
+                            title: topic,
+                            subtitle: `${keyStage} ${subject} | Realtouch Academy`,
+                            duration: 2
+                        },
+                        {
+                            type: 'objectives',
+                            title: 'Learning Objectives',
+                            content: [
+                                `By the end of this lesson, you will be able to:`,
+                                ...objectives.map(obj => `• ${obj}`)
+                            ],
+                            duration: 3
+                        },
+                        {
+                            type: 'starter',
+                            title: 'Starter Activity',
+                            content: `Quick thinking: What do you already know about ${topic}?`,
+                            activity: 'Think-Pair-Share (5 minutes individual thinking, 3 minutes pair discussion)',
+                            duration: 8
+                        },
+                        {
+                            type: 'main_content',
+                            title: `Understanding ${topic}`,
+                            content: [
+                                `Let's explore ${topic} step by step...`,
+                                '',
+                                'Key concepts we\'ll cover:',
+                                '• Definition and core principles',
+                                '• Methods and techniques',
+                                '• Real-world applications',
+                                '• Common misconceptions to avoid',
+                                '',
+                                'Interactive elements:',
+                                '• Worked examples with class participation',
+                                '• Quick check questions throughout',
+                                '• Visual aids and demonstrations'
+                            ],
+                            duration: Math.floor(duration * 0.4)
+                        },
+                        {
+                            type: 'interactive',
+                            title: 'Guided Practice',
+                            content: [
+                                `Now it's your turn to practice ${topic}!`,
+                                '',
+                                'Working together:',
+                                '• Step-by-step guided examples',
+                                '• Peer collaboration encouraged',
+                                '• Individual practice with support',
+                                '',
+                                'Remember: Ask questions if you\'re unsure!'
+                            ],
+                            activity: `Hands-on ${topic} practice - work in pairs or small groups`,
+                            duration: Math.floor(duration * 0.25)
+                        },
+                        {
+                            type: 'independent',
+                            title: 'Independent Practice',
+                            content: [
+                                `Time to show what you've learned about ${topic}!`,
+                                '',
+                                'Independent work:',
+                                '• Apply today\'s learning',
+                                '• Work at your own pace',
+                                '• Ask for help when needed',
+                                '',
+                                'Success criteria:',
+                                ...objectives.map(obj => `• ${obj}`)
+                            ],
+                            activity: `Individual ${topic} challenge`,
+                            duration: Math.floor(duration * 0.15)
+                        },
+                        {
+                            type: 'assessment',
+                            title: 'Check Your Understanding',
+                            content: [
+                                'Let\'s see how well you\'ve understood today\'s lesson:',
+                                '',
+                                'Quick assessment questions:'
+                            ],
+                            questions: [
+                                `What is the main concept we learned about ${topic} today?`,
+                                `How would you explain ${topic} to someone who wasn't in today's lesson?`,
+                                `Can you give an example of how ${topic} is used in real life?`,
+                                `What questions do you still have about ${topic}?`
+                            ],
+                            duration: 8
+                        },
+                        {
+                            type: 'homework',
+                            title: 'Homework & Next Steps',
+                            content: [
+                                `Excellent work today learning about ${topic}!`,
+                                '',
+                                'Your homework tasks are:',
+                                ...generateHomework().map((task, index) => `${index + 1}. ${task}`),
+                                '',
+                                'Due date: Next lesson',
+                                '',
+                                'Next lesson preview:',
+                                `We'll build on today's learning about ${topic} and explore more advanced concepts`,
+                                '',
+                                'Remember: If you have any questions about the homework, please ask me before you leave or email me!'
+                            ],
+                            duration: 5
+                        },
+                        {
+                            type: 'plenary',
+                            title: 'Lesson Summary',
+                            content: [
+                                `Today we successfully learned about ${topic}`,
+                                '',
+                                'Key achievements:',
+                                ...objectives.map(obj => `✓ ${obj}`),
+                                '',
+                                'Well done everyone!',
+                                '',
+                                'Remember:',
+                                '• Practice makes perfect',
+                                '• Don\'t forget your homework',
+                                '• Ask questions if you need help',
+                                '',
+                                'See you next lesson!'
+                            ],
+                            duration: 3
+                        }
+                    ]
+                };
+                
+                return lessonStructure;
+            };
+
+            const handleGenerate = async () => {
+                setIsGenerating(true);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                const lesson = generateLessonContent();
+                setGeneratedLesson(lesson);
+                setCurrentSlide(0);
+                setIsGenerating(false);
+            };
+
+            const nextSlide = () => {
+                if (generatedLesson && currentSlide < generatedLesson.slides.length - 1) {
+                    setCurrentSlide(currentSlide + 1);
+                }
+            };
+
+            const prevSlide = () => {
+                if (currentSlide > 0) {
+                    setCurrentSlide(currentSlide - 1);
+                }
+            };
+
+            const renderSlide = (slide) => {
+                const slideStyles = {
+                    title: 'bg-gradient-to-br from-blue-600 to-purple-700 text-white',
+                    objectives: 'bg-gradient-to-br from-green-500 to-teal-600 text-white',
+                    starter: 'bg-gradient-to-br from-orange-500 to-red-500 text-white',
+                    main_content: 'bg-gradient-to-br from-indigo-600 to-blue-700 text-white',
+                    interactive: 'bg-gradient-to-br from-purple-600 to-pink-600 text-white',
+                    independent: 'bg-gradient-to-br from-teal-600 to-cyan-600 text-white',
+                    assessment: 'bg-gradient-to-br from-yellow-500 to-orange-500 text-white',
+                    homework: 'bg-gradient-to-br from-rose-600 to-pink-700 text-white',
+                    plenary: 'bg-gradient-to-br from-emerald-600 to-green-700 text-white'
+                };
+
+                return (
+                    <div className={`min-h-96 p-8 rounded-lg ${slideStyles[slide.type]} flex flex-col justify-center print-slide`}>
+                        <div className="text-center">
+                            <h2 className="text-4xl font-bold mb-6">{slide.title}</h2>
+                            
+                            {slide.type === 'title' && (
+                                <div>
+                                    <p className="text-xl mb-4">{slide.subtitle}</p>
+                                    <div className="flex justify-center items-center space-x-6 text-lg opacity-90">
+                                        <span className="flex items-center">
+                                            <Clock className="w-5 h-5 mr-2" />
+                                            {generatedLesson.duration}
+                                        </span>
+                                        <span className="flex items-center">
+                                            <Users className="w-5 h-5 mr-2" />
+                                            {generatedLesson.classSize}
+                                        </span>
+                                        <span className="flex items-center">
+                                            <BookOpen className="w-5 h-5 mr-2" />
+                                            Interactive Learning
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {slide.content && (
+                                <div className="text-left max-w-4xl mx-auto">
+                                    {Array.isArray(slide.content) ? (
+                                        slide.content.map((item, index) => (
+                                            <p key={index} className="text-lg mb-3 leading-relaxed">{item}</p>
+                                        ))
+                                    ) : (
+                                        <p className="text-xl leading-relaxed">{slide.content}</p>
+                                    )}
+                                </div>
+                            )}
+                            
+                            {slide.activity && (
+                                <div className="mt-6 p-4 bg-white bg-opacity-20 rounded-lg">
+                                    <p className="text-lg font-semibold flex items-center justify-center">
+                                        <Play className="w-5 h-5 mr-2" />
+                                        Activity: {slide.activity}
+                                    </p>
+                                    <p className="text-sm mt-2 opacity-90">Duration: {slide.duration} minutes</p>
+                                </div>
+                            )}
+                            
+                            {slide.questions && (
+                                <div className="mt-6 text-left max-w-3xl mx-auto">
+                                    {slide.questions.map((question, index) => (
+                                        <div key={index} className="mb-4 p-3 bg-white bg-opacity-20 rounded-lg">
+                                            <p className="text-lg">Q{index + 1}: {question}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            if (generatedLesson) {
+                const slide = generatedLesson.slides[currentSlide];
+                
+                return (
+                    <div className="max-w-7xl mx-auto p-6">
+                        <div className="mb-6 flex justify-between items-center no-print">
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-800">Realtouch Academy Lesson</h1>
+                                <p className="text-gray-600">{generatedLesson.title} - Slide {currentSlide + 1} of {generatedLesson.slides.length}</p>
+                            </div>
+                            <div className="flex space-x-2">
+                                <button 
+                                    onClick={() => setGeneratedLesson(null)}
+                                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                                >
+                                    New Lesson
+                                </button>
+                                <button 
+                                    onClick={() => window.print()}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                                >
+                                    <Download className="w-4 h-4 mr-2" />
+                                    Print Slides
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div className="mb-6">
+                            {renderSlide(slide)}
+                        </div>
+                        
+                        <div className="flex justify-between items-center no-print">
+                            <button 
+                                onClick={prevSlide}
+                                disabled={currentSlide === 0}
+                                className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                <ChevronLeft />
+                                Previous
+                            </button>
+                            
+                            <div className="flex space-x-2">
+                                {generatedLesson.slides.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => setCurrentSlide(index)}
+                                        className={`w-3 h-3 rounded-full transition-colors ${
+                                            index === currentSlide ? 'bg-blue-600' : 'bg-gray-300'
+                                        }`}
+                                    />
+                                ))}
+                            </div>
+                            
+                            <button 
+                                onClick={nextSlide}
+                                disabled={currentSlide === generatedLesson.slides.length - 1}
+                                className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                                Next
+                                <ChevronRight />
+                            </button>
+                        </div>
+                        
+                        <div className="mt-6 p-4 bg-gray-50 rounded-lg no-print">
+                            <h3 className="font-semibold text-gray-800 mb-2">Teaching Notes:</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <p className="text-gray-600"><strong>Duration:</strong> {slide.duration} minutes</p>
+                                    {slide.activity && <p className="text-gray-600"><strong>Activity:</strong> {slide.activity}</p>}
+                                </div>
+                                <div>
+                                    <p className="text-gray-600"><strong>Slide:</strong> {currentSlide + 1} of {generatedLesson.slides.length}</p>
+                                    <p className="text-gray-600"><strong>Type:</strong> {slide.type.replace('_', ' ')}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="max-w-5xl mx-auto p-6">
+                    <div className="text-center mb-8">
+                        <div className="gradient-bg text-white rounded-lg p-8 mb-8">
+                            <h1 className="text-4xl font-bold mb-2">Realtouch Academy</h1>
+                            <p className="text-xl opacity-90">Professional Lesson Plan Generator</p>
+                            <div className="w-24 h-1 bg-white bg-opacity-50 mx-auto mt-4"></div>
+                            <p className="mt-4 text-lg opacity-80">Create curriculum-aligned, interactive lessons in minutes</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg shadow-lg p-8">
+                        <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                            <BookOpen className="w-6 h-6 mr-3 text-blue-600" />
+                            Create Your Lesson Plan
+                        </h2>
+
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+                                <select 
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={formData.subject}
+                                    onChange={(e) => setFormData({...formData, subject: e.target.value, topic: ''})}
+                                    required
+                                >
+                                    <option value="">Select Subject</option>
+                                    <option value="Maths">Mathematics</option>
+                                    <option value="English">English</option>
+                                    <option value="IT/AI">IT/AI Training</option>
+                                    <option value="Digital Skills">Digital Skills</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Key Stage *</label>
+                                <select 
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={formData.keyStage}
+                                    onChange={(e) => setFormData({...formData, keyStage: e.target.value, topic: ''})}
+                                    required
+                                >
+                                    <option value="">Select Key Stage</option>
+                                    <option value="KS2">Key Stage 2 (Ages 7-11)</option>
+                                    <option value="KS3">Key Stage 3 (Ages 11-14)</option>
+                                    <option value="KS4">Key Stage 4 (Ages 14-16)</option>
+                                    <option value="11+">11+ Preparation</option>
+                                    <option value="GCSE">GCSE Preparation</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Topic *</label>
+                                <input 
+                                    type="text"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="e.g., Fractions, Creative Writing, Basic Coding"
+                                    value={formData.topic}
+                                    onChange={(e) => setFormData({...formData, topic: e.target.value})}
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Duration (minutes)</label>
+                                <select 
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={formData.duration}
+                                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                                >
+                                    <option value="30">30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                    <option value="90">90 minutes</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Expected Class Size</label>
+                                <input 
+                                    type="number"
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="12"
+                                    value={formData.classSize}
+                                    onChange={(e) => setFormData({...formData, classSize: e.target.value})}
+                                    min="1"
+                                    max="30"
+                                />
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Learning Objectives</label>
+                                <textarea 
+                                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                                    rows="3"
+                                    placeholder="Learning objectives will be auto-generated based on your topic selection"
+                                    value={formData.topic ? (learningObjectivesData[formData.topic] || learningObjectivesData['default']).join('\n• ') : ''}
+                                    readOnly
+                                />
+                                <p className="text-xs text-gray-500 mt-1">📝 Auto-generated based on selected topic</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 text-center">
+                            <button 
+                                onClick={handleGenerate}
+                                disabled={!formData.subject || !formData.keyStage || !formData.topic || isGenerating}
+                                className="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center mx-auto text-lg font-semibold"
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                                        Generating Your Professional Lesson...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Target className="w-5 h-5 mr-3" />
+                                        Generate Interactive Lesson Plan
+                                    </>
+                                )}
+                            </button>
+                            <p className="text-sm text-gray-500 mt-2">Creates slides, activities, and homework assignments</p>
+                        </div>
+
+                        {formData.keyStage && curriculumData[formData.keyStage] && (
+                            <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                                <h3 className="font-semibold text-blue-800 mb-3 flex items-center">
+                                    <BookOpen className="w-5 h-5 mr-2" />
+                                    Curriculum Topics for {formData.keyStage} {formData.subject || 'All Subjects'}
+                                </h3>
+                                
+                                {formData.subject && curriculumData[formData.keyStage][formData.subject] ? (
+                                    <div>
+                                        <p className="text-sm text-blue-700 mb-3">Click on any topic to select it automatically:</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {curriculumData[formData.keyStage][formData.subject].map((topic, index) => (
+                                                <button 
+                                                    key={index}
+                                                    onClick={() => setFormData({...formData, topic: topic})}
+                                                    className={`px-4 py-2 rounded-full text-sm cursor-pointer transition-all duration-200 ${
+                                                        formData.topic === topic 
+                                                            ? 'bg-blue-600 text-white shadow-md transform scale-105' 
+                                                            : 'bg-blue-100 text-blue-800 hover:bg-blue-200 hover:shadow-sm'
+                                                    }`}
+                                                >
+                                                    {topic}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <p className="text-sm text-blue-700 mb-3">Available subjects for {formData.keyStage}:</p>
+                                        {Object.keys(curriculumData[formData.keyStage]).map((subject) => (
+                                            <div key={subject} className="border-l-4 border-blue-300 pl-4">
+                                                <h4 className="font-medium text-blue-800 mb-2">{subject}</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {curriculumData[formData.keyStage][subject].map((topic, index) => (
+                                                        <button 
+                                                            key={index}
+                                                            onClick={() => setFormData({...formData, subject: subject, topic: topic})}
+                                                            className="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs cursor-pointer hover:bg-blue-100 transition-colors"
+                                                        >
+                                                            {topic}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Features highlight */}
+                        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+                                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <BookOpen className="w-6 h-6 text-white" />
+                                </div>
+                                <h4 className="font-semibold text-gray-800">Curriculum Aligned</h4>
+                                <p className="text-sm text-gray-600 mt-1">Meets UK curriculum standards</p>
+                            </div>
+                            <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+                                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <Target className="w-6 h-6 text-white" />
+                                </div>
+                                <h4 className="font-semibold text-gray-800">Interactive Slides</h4>
+                                <p className="text-sm text-gray-600 mt-1">Engaging presentation format</p>
+                            </div>
+                            <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <Download className="w-6 h-6 text-white" />
+                                </div>
+                                <h4 className="font-semibold text-gray-800">Ready to Use</h4>
+                                <p className="text-sm text-gray-600 mt-1">Print or present instantly</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-8 text-center text-gray-500 text-sm">
+                        <p>&copy; 2024 Realtouch Academy. Professional tutoring services.</p>
+                        <p className="mt-1">Lesson Plan Generator v1.0 - Streamlining education through technology</p>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<LessonPlanGenerator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
