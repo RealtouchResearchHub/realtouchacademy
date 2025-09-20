@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realtouch Academy - AI-Powered Lesson Generator</title>
+    <title>Realtouch Academy - Professional Teaching Slides</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -13,16 +13,9 @@
         .animate-spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @media print { .no-print { display: none !important; } .print-slide { page-break-after: always; } }
-        .ai-indicator { 
-            background: linear-gradient(45deg, #4f46e5, #7c3aed, #ec4899);
-            background-size: 300% 300%;
-            animation: gradient 3s ease infinite;
-        }
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        .slide-content { font-size: 1.25rem; line-height: 1.8; }
+        .slide-title { font-size: 3rem; font-weight: bold; margin-bottom: 2rem; }
+        .slide-subtitle { font-size: 1.5rem; margin-bottom: 1rem; }
     </style>
 </head>
 <body>
@@ -43,7 +36,7 @@
         const Sparkles = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l1.5 1.5L5 6l-1.5-1.5L5 3zM19 3l1.5 1.5L19 6l-1.5-1.5L19 3zM5 21l1.5-1.5L5 18l-1.5 1.5L5 21zM19 21l1.5-1.5L19 18l-1.5 1.5L19 21zM9 12l1.5-1.5L9 9l-1.5 1.5L9 12zM15 12l1.5-1.5L15 9l-1.5 1.5L15 12z" /></svg>;
         const Brain = ({ className }) => <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>;
 
-        const DynamicLessonGenerator = () => {
+        const ProfessionalLessonGenerator = () => {
             const [formData, setFormData] = useState({
                 subject: '',
                 keyStage: '',
@@ -60,148 +53,78 @@
             const [error, setError] = useState(null);
             const [generationProgress, setGenerationProgress] = useState('');
 
-            // UK Curriculum Framework
-            const curriculumFramework = {
-                KS2: {
-                    Maths: {
-                        topics: [
-                            'Number and Place Value', 'Addition and Subtraction', 'Multiplication and Division', 
-                            'Fractions (including decimals and percentages)', 'Measurement', 'Geometry - Properties of shapes', 
-                            'Geometry - Position and direction', 'Statistics'
-                        ],
-                        standards: 'KS2 National Curriculum for Mathematics (Ages 7-11)',
-                        assessmentCriteria: 'Working towards expected standard, At expected standard, Greater depth'
-                    },
-                    English: {
-                        topics: [
-                            'Reading Comprehension', 'Creative Writing', 'Grammar and Punctuation', 'Spelling', 
-                            'Speaking and Listening', 'Poetry', 'Handwriting', 'Vocabulary Building'
-                        ],
-                        standards: 'KS2 National Curriculum for English (Ages 7-11)',
-                        assessmentCriteria: 'Working towards expected standard, At expected standard, Greater depth'
-                    },
-                    Science: {
-                        topics: [
-                            'Animals including humans', 'Living things and their habitats', 'Plants', 'Everyday materials',
-                            'Seasonal changes', 'Forces and magnets', 'Light', 'Rocks', 'States of matter', 'Sound', 'Electricity'
-                        ],
-                        standards: 'KS2 National Curriculum for Science (Ages 7-11)',
-                        assessmentCriteria: 'Working scientifically skills and subject knowledge'
-                    }
-                },
-                KS3: {
-                    Maths: {
-                        topics: [
-                            'Number', 'Algebra', 'Ratio and Proportion', 'Geometry and Measures', 
-                            'Probability', 'Statistics', 'Working with coordinates', 'Sequences'
-                        ],
-                        standards: 'KS3 National Curriculum for Mathematics (Ages 11-14)',
-                        assessmentCriteria: 'Below expected standard, At expected standard, Above expected standard'
-                    },
-                    English: {
-                        topics: [
-                            'Reading', 'Writing', 'Grammar', 'Literature', 'Language Analysis', 
-                            'Creative Expression', 'Media Studies', 'Drama and Performance'
-                        ],
-                        standards: 'KS3 National Curriculum for English (Ages 11-14)',
-                        assessmentCriteria: 'Below expected standard, At expected standard, Above expected standard'
-                    },
-                    Science: {
-                        topics: [
-                            'Biology: Cells and organisation', 'Biology: Reproduction', 'Biology: Health and lifestyle',
-                            'Chemistry: Particles and their behaviour', 'Chemistry: Elements, atoms and compounds', 'Chemistry: Reactions',
-                            'Physics: Energy', 'Physics: Motion and forces', 'Physics: Waves', 'Physics: Electricity and electromagnetism'
-                        ],
-                        standards: 'KS3 National Curriculum for Science (Ages 11-14)',
-                        assessmentCriteria: 'Working scientifically and subject-specific knowledge'
-                    }
-                },
-                KS4: {
-                    Maths: {
-                        topics: [
-                            'Number', 'Algebra', 'Ratio, Proportion and Rates of Change', 'Geometry and Measures', 
-                            'Probability', 'Statistics', 'Trigonometry', 'Quadratic Equations', 'Graphs and Functions'
-                        ],
-                        standards: 'GCSE Mathematics AQA/Edexcel/OCR specifications',
-                        assessmentCriteria: 'Foundation (Grades 1-5) and Higher (Grades 4-9) tiers'
-                    },
-                    English: {
-                        topics: [
-                            'Language Paper 1 - Creative Reading and Writing', 'Language Paper 2 - Writers Viewpoints', 
-                            'Literature Paper 1 - Modern Prose/Drama', 'Literature Paper 2 - Poetry and Unseen Poetry', 
-                            'Creative Writing', 'Spoken Language Presentation'
-                        ],
-                        standards: 'GCSE English Language and Literature AQA/Edexcel/OCR specifications',
-                        assessmentCriteria: 'GCSE grades 1-9 with grade descriptors'
-                    },
-                    Science: {
-                        topics: [
-                            'Biology: Cell biology', 'Biology: Organisation', 'Biology: Infection and response', 'Biology: Bioenergetics',
-                            'Chemistry: Atomic structure', 'Chemistry: Bonding', 'Chemistry: Quantitative chemistry', 'Chemistry: Energy changes',
-                            'Physics: Energy', 'Physics: Electricity', 'Physics: Particle model of matter', 'Physics: Forces'
-                        ],
-                        standards: 'GCSE Combined Science and separate sciences AQA/Edexcel/OCR',
-                        assessmentCriteria: 'GCSE grades 1-9 across Foundation and Higher tiers'
-                    }
-                }
-            };
-
-            // AI Lesson Generation Function
-            const generateAILesson = async () => {
+            // Generate professional lesson using AI
+            const generateProfessionalLesson = async () => {
                 const { subject, keyStage, topic, duration, classSize, specificRequirements, apiKey } = formData;
                 
                 if (!apiKey) {
-                    throw new Error('OpenAI API key is required for dynamic content generation');
+                    throw new Error('OpenAI API key is required');
                 }
 
-                const curriculumInfo = curriculumFramework[keyStage]?.[subject];
-                if (!curriculumInfo) {
-                    throw new Error(`Curriculum information not available for ${keyStage} ${subject}`);
-                }
+                setGenerationProgress('Creating structured lesson prompt...');
 
-                setGenerationProgress('Building curriculum prompt...');
+                // Enhanced prompt for clean, structured output
+                const systemPrompt = `You are an expert UK teacher creating professional teaching slides. 
 
-                // Construct detailed curriculum prompt
-                const systemPrompt = `You are an expert UK curriculum teacher and lesson planner specializing in ${subject} for ${keyStage}. 
+CRITICAL FORMATTING RULES:
+- Each slide must have MAXIMUM 5 bullet points
+- Each bullet point must be ONE clear sentence
+- Use simple, age-appropriate language for ${keyStage}
+- NO technical jargon or complex explanations
+- Each slide focuses on ONE key concept only
 
-CURRICULUM CONTEXT:
-- Standards: ${curriculumInfo.standards}
-- Assessment: ${curriculumInfo.assessmentCriteria}
-- Age-appropriate content for ${keyStage}
-- Lesson duration: ${duration} minutes
-- Class size: ${classSize} students
+Create a ${duration}-minute lesson on "${topic}" for ${keyStage} ${subject} with exactly these slides:
 
-LESSON REQUIREMENTS:
-Create a comprehensive, ready-to-teach lesson plan for the topic "${topic}" that includes:
+1. LEARNING OBJECTIVES (3-4 clear, specific objectives)
+2. STARTER ACTIVITY (engaging 5-minute activity with simple instructions)
+3. MAIN CONCEPT 1 (first key idea with 3-5 simple points)
+4. WORKED EXAMPLE 1 (step-by-step example with clear steps)
+5. MAIN CONCEPT 2 (second key idea with 3-5 simple points)
+6. WORKED EXAMPLE 2 (another step-by-step example)
+7. STUDENT ACTIVITY (clear instructions for practice activity)
+8. ASSESSMENT QUESTIONS (3-4 simple questions to check understanding)
+9. HOMEWORK TASKS (3 clear, specific homework tasks)
+10. LESSON SUMMARY (key takeaways in simple bullet points)
 
-1. LEARNING OBJECTIVES (3-4 specific, measurable objectives aligned to UK National Curriculum)
-2. STARTER ACTIVITY (5-8 minutes, engaging hook that assesses prior knowledge)
-3. MAIN CONTENT (detailed teaching content broken into 2-3 sections with):
-   - Clear explanations with subject-specific examples
-   - Real-world applications and contexts
-   - Common misconceptions to address
-   - Key vocabulary with definitions
-4. INTERACTIVE ACTIVITIES (2-3 activities with specific instructions and materials)
-5. ASSESSMENT QUESTIONS (4-6 questions testing different cognitive levels)
-6. HOMEWORK TASKS (3 varied tasks reinforcing learning)
-7. DIFFERENTIATION (support for lower ability, extension for higher ability)
+RESPOND WITH VALID JSON in this exact format:
+{
+  "title": "${topic}",
+  "learningObjectives": ["objective 1", "objective 2", "objective 3"],
+  "starterActivity": {
+    "title": "Activity name",
+    "instructions": "Clear, simple instructions in one sentence"
+  },
+  "mainConcepts": [
+    {
+      "title": "Concept name",
+      "points": ["point 1", "point 2", "point 3"]
+    },
+    {
+      "title": "Concept name", 
+      "points": ["point 1", "point 2", "point 3"]
+    }
+  ],
+  "workedExamples": [
+    {
+      "title": "Example 1",
+      "steps": ["step 1", "step 2", "step 3"]
+    },
+    {
+      "title": "Example 2",
+      "steps": ["step 1", "step 2", "step 3"]
+    }
+  ],
+  "studentActivity": {
+    "title": "Activity name",
+    "instructions": "What students need to do",
+    "duration": "10 minutes"
+  },
+  "assessmentQuestions": ["question 1", "question 2", "question 3", "question 4"],
+  "homeworkTasks": ["task 1", "task 2", "task 3"],
+  "summary": ["key point 1", "key point 2", "key point 3"]
+}
 
-SPECIFIC REQUIREMENTS: ${specificRequirements || 'Standard lesson structure'}
-
-CONTENT QUALITY:
-- Use actual subject knowledge, not generic statements
-- Include specific examples, calculations, or text extracts where relevant
-- Provide step-by-step explanations for complex concepts
-- Suggest specific resources and materials
-- Include timing for each section
-- Add teacher notes for effective delivery
-
-SAFETY AND COMPLIANCE:
-- Age-appropriate content only
-- Inclusive and accessible for all learners
-- Follows UK educational standards and policies
-
-Respond with a structured JSON object containing the complete lesson plan.`;
+REQUIREMENTS: ${specificRequirements || 'Standard lesson structure'}`;
 
                 setGenerationProgress('Connecting to OpenAI...');
 
@@ -220,72 +143,42 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                             },
                             {
                                 role: 'user',
-                                content: `Create a detailed lesson plan for "${topic}" in ${subject} for ${keyStage} students. The lesson should be ${duration} minutes long for a class of ${classSize} students.`
+                                content: `Create professional teaching slides for "${topic}" in ${subject} for ${keyStage}. Duration: ${duration} minutes. Class size: ${classSize}. Return ONLY valid JSON with the exact structure specified.`
                             }
                         ],
-                        temperature: 0.7,
-                        max_tokens: 4000
+                        temperature: 0.3,
+                        max_tokens: 3000
                     })
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error?.message || 'Failed to generate lesson content');
+                    throw new Error(errorData.error?.message || 'Failed to generate lesson');
                 }
 
-                setGenerationProgress('Processing AI response...');
+                setGenerationProgress('Processing and structuring content...');
 
                 const data = await response.json();
-                const aiContent = data.choices[0].message.content;
+                let aiResponse = data.choices[0].message.content;
 
-                // Parse AI response (handle both JSON and text responses)
+                // Clean up the response to ensure it's valid JSON
+                aiResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
                 let lessonData;
                 try {
-                    lessonData = JSON.parse(aiContent);
+                    lessonData = JSON.parse(aiResponse);
                 } catch (e) {
-                    // If not JSON, structure the text response
-                    lessonData = parseTextResponse(aiContent);
+                    console.error('JSON Parse Error:', e);
+                    console.error('AI Response:', aiResponse);
+                    throw new Error('AI returned invalid format. Please try again.');
                 }
 
-                setGenerationProgress('Structuring lesson slides...');
+                setGenerationProgress('Creating professional slides...');
 
-                // Convert AI response to lesson structure
-                return structureAILesson(lessonData, formData);
+                return createProfessionalSlides(lessonData, formData);
             };
 
-            const parseTextResponse = (text) => {
-                // Basic parsing for non-JSON responses
-                const sections = text.split('\n\n');
-                return {
-                    learningObjectives: extractBulletPoints(text, 'objectives?|aims?'),
-                    starterActivity: extractSection(text, 'starter|warm.?up|introduction'),
-                    mainContent: extractSection(text, 'main|content|teaching|explanation'),
-                    activities: extractBulletPoints(text, 'activit'),
-                    assessment: extractBulletPoints(text, 'assessment|questions|check'),
-                    homework: extractBulletPoints(text, 'homework|home.?learning'),
-                    vocabulary: extractBulletPoints(text, 'vocabulary|key.?terms')
-                };
-            };
-
-            const extractSection = (text, pattern) => {
-                const regex = new RegExp(`(${pattern})[^\\n]*\\n([\\s\\S]*?)(?=\\n\\n|$)`, 'i');
-                const match = text.match(regex);
-                return match ? match[2].trim() : '';
-            };
-
-            const extractBulletPoints = (text, pattern) => {
-                const regex = new RegExp(`(${pattern})[^\\n]*\\n([\\s\\S]*?)(?=\\n\\n|$)`, 'i');
-                const match = text.match(regex);
-                if (!match) return [];
-                
-                return match[2]
-                    .split('\n')
-                    .filter(line => line.trim())
-                    .map(line => line.replace(/^[-•*]\s*/, '').trim())
-                    .filter(line => line.length > 10);
-            };
-
-            const structureAILesson = (aiData, formData) => {
+            const createProfessionalSlides = (data, formData) => {
                 const { subject, keyStage, topic, duration, classSize } = formData;
 
                 return {
@@ -295,90 +188,85 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                     classSize: `${classSize} students`,
                     aiGenerated: true,
                     generatedAt: new Date().toISOString(),
-                    learningObjectives: aiData.learningObjectives || aiData.objectives || [],
                     slides: [
+                        // Title Slide
                         {
                             type: 'title',
-                            title: topic,
-                            subtitle: `${keyStage} ${subject} | AI-Generated Lesson | Realtouch Academy`,
-                            duration: 2,
-                            aiGenerated: true
+                            title: data.title || topic,
+                            subtitle: `${keyStage} ${subject}`,
+                            footer: 'Realtouch Academy | Professional Teaching'
                         },
+                        // Learning Objectives
                         {
                             type: 'objectives',
-                            title: 'Learning Objectives',
-                            content: [
-                                'By the end of this lesson, you will be able to:',
-                                ...(aiData.learningObjectives || aiData.objectives || []).map(obj => `✓ ${obj}`)
-                            ],
-                            duration: 3,
-                            teacherNotes: 'Review objectives, check student understanding of key terms'
+                            title: 'Today\'s Learning Objectives',
+                            subtitle: 'By the end of this lesson, you will be able to:',
+                            points: data.learningObjectives || []
                         },
+                        // Starter Activity
                         {
                             type: 'starter',
-                            title: 'Starter Activity',
-                            content: aiData.starterActivity || aiData.starter || `Engaging introduction to ${topic}`,
-                            activity: 'Think-Pair-Share',
-                            duration: 6,
-                            teacherNotes: 'Use this to assess prior knowledge and engage students'
+                            title: data.starterActivity?.title || 'Starter Activity',
+                            subtitle: 'Let\'s get warmed up!',
+                            content: data.starterActivity?.instructions || 'Engaging starter activity',
+                            duration: '5 minutes'
                         },
+                        // Main Concept 1
                         {
-                            type: 'main_content',
-                            title: `Understanding ${topic}`,
-                            content: Array.isArray(aiData.mainContent) ? aiData.mainContent : [aiData.mainContent || `Comprehensive explanation of ${topic} concepts`],
-                            duration: Math.floor(duration * 0.4),
-                            teacherNotes: 'Key teaching phase - use interactive questioning'
+                            type: 'concept',
+                            title: data.mainConcepts?.[0]?.title || 'Key Concept 1',
+                            subtitle: 'Understanding the basics',
+                            points: data.mainConcepts?.[0]?.points || []
                         },
-                        ...(aiData.activities || []).map((activity, index) => ({
-                            type: 'interactive',
-                            title: `Activity ${index + 1}`,
-                            content: typeof activity === 'string' ? activity : activity.description || activity.title,
-                            activity: typeof activity === 'object' ? activity.title : `${topic} Practice`,
-                            duration: 12,
-                            teacherNotes: 'Support struggling students, extend able learners'
-                        })),
+                        // Worked Example 1
+                        {
+                            type: 'example',
+                            title: data.workedExamples?.[0]?.title || 'Worked Example 1',
+                            subtitle: 'Let\'s work through this together',
+                            steps: data.workedExamples?.[0]?.steps || []
+                        },
+                        // Main Concept 2
+                        {
+                            type: 'concept',
+                            title: data.mainConcepts?.[1]?.title || 'Key Concept 2',
+                            subtitle: 'Building on what we know',
+                            points: data.mainConcepts?.[1]?.points || []
+                        },
+                        // Worked Example 2
+                        {
+                            type: 'example',
+                            title: data.workedExamples?.[1]?.title || 'Worked Example 2',
+                            subtitle: 'Another example to practice',
+                            steps: data.workedExamples?.[1]?.steps || []
+                        },
+                        // Student Activity
+                        {
+                            type: 'activity',
+                            title: data.studentActivity?.title || 'Your Turn to Practice',
+                            subtitle: 'Time to apply what you\'ve learned',
+                            content: data.studentActivity?.instructions || 'Practice activity',
+                            duration: data.studentActivity?.duration || '15 minutes'
+                        },
+                        // Assessment
                         {
                             type: 'assessment',
-                            title: 'Check Understanding',
-                            content: 'Assessment questions to check learning:',
-                            questions: aiData.assessment || aiData.questions || [
-                                `What are the key concepts of ${topic}?`,
-                                `How would you apply ${topic} knowledge?`,
-                                `What questions do you have about ${topic}?`
-                            ],
-                            duration: 8,
-                            teacherNotes: 'Use variety of assessment methods - questioning, mini-whiteboards, exit tickets'
+                            title: 'Check Your Understanding',
+                            subtitle: 'Let\'s see how you\'re doing',
+                            questions: data.assessmentQuestions || []
                         },
+                        // Homework
                         {
                             type: 'homework',
-                            title: 'Homework & Extension',
-                            content: [
-                                `Excellent work on ${topic} today!`,
-                                '',
-                                'Your homework tasks:',
-                                ...(aiData.homework || []).map((task, index) => `${index + 1}. ${task}`),
-                                '',
-                                'Key vocabulary to remember:',
-                                (aiData.vocabulary || []).join(', '),
-                                '',
-                                'Next lesson: Building on today\'s learning'
-                            ],
-                            duration: 4,
-                            teacherNotes: 'Explain homework clearly, check understanding'
+                            title: 'Homework Tasks',
+                            subtitle: 'To complete before next lesson',
+                            tasks: data.homeworkTasks || []
                         },
+                        // Summary
                         {
-                            type: 'plenary',
-                            title: 'Lesson Summary',
-                            content: [
-                                `Today we mastered: ${topic}`,
-                                '',
-                                'Key achievements:',
-                                ...(aiData.learningObjectives || []).map(obj => `✓ ${obj}`),
-                                '',
-                                'Well done everyone! See you next lesson.'
-                            ],
-                            duration: 3,
-                            teacherNotes: 'Summarize key learning, preview next lesson'
+                            type: 'summary',
+                            title: 'What We Learned Today',
+                            subtitle: 'Key takeaways from this lesson',
+                            points: data.summary || []
                         }
                     ]
                 };
@@ -387,16 +275,16 @@ Respond with a structured JSON object containing the complete lesson plan.`;
             const handleGenerate = async () => {
                 setIsGenerating(true);
                 setError(null);
-                setGenerationProgress('Initializing AI lesson generation...');
+                setGenerationProgress('Initializing professional lesson generation...');
 
                 try {
-                    const lesson = await generateAILesson();
+                    const lesson = await generateProfessionalLesson();
                     setGeneratedLesson(lesson);
                     setCurrentSlide(0);
-                    setGenerationProgress('Lesson generated successfully!');
+                    setGenerationProgress('Professional lesson created successfully!');
                 } catch (err) {
                     setError(err.message);
-                    console.error('Lesson generation error:', err);
+                    console.error('Generation error:', err);
                 } finally {
                     setIsGenerating(false);
                 }
@@ -416,76 +304,122 @@ Respond with a structured JSON object containing the complete lesson plan.`;
 
             const renderSlide = (slide) => {
                 const slideStyles = {
-                    title: 'bg-gradient-to-br from-blue-600 to-purple-700 text-white',
-                    objectives: 'bg-gradient-to-br from-green-500 to-teal-600 text-white',
+                    title: 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white',
+                    objectives: 'bg-gradient-to-br from-green-500 to-emerald-600 text-white',
                     starter: 'bg-gradient-to-br from-orange-500 to-red-500 text-white',
-                    main_content: 'bg-gradient-to-br from-indigo-600 to-blue-700 text-white',
-                    interactive: 'bg-gradient-to-br from-purple-600 to-pink-600 text-white',
-                    assessment: 'bg-gradient-to-br from-yellow-500 to-orange-500 text-white',
-                    homework: 'bg-gradient-to-br from-rose-600 to-pink-700 text-white',
-                    plenary: 'bg-gradient-to-br from-emerald-600 to-green-700 text-white'
+                    concept: 'bg-gradient-to-br from-purple-600 to-violet-700 text-white',
+                    example: 'bg-gradient-to-br from-blue-500 to-cyan-600 text-white',
+                    activity: 'bg-gradient-to-br from-pink-600 to-rose-700 text-white',
+                    assessment: 'bg-gradient-to-br from-yellow-500 to-amber-600 text-white',
+                    homework: 'bg-gradient-to-br from-indigo-600 to-purple-700 text-white',
+                    summary: 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white'
                 };
 
                 return (
-                    <div className={`min-h-96 p-8 rounded-lg ${slideStyles[slide.type]} flex flex-col justify-center print-slide relative`}>
-                        {slide.aiGenerated && (
-                            <div className="absolute top-4 right-4 flex items-center text-white text-sm opacity-90">
-                                <Sparkles className="w-4 h-4 mr-1" />
-                                AI Generated
-                            </div>
-                        )}
-                        <div className="text-center">
-                            <h2 className="text-4xl font-bold mb-6">{slide.title}</h2>
+                    <div className={`min-h-96 p-12 rounded-xl ${slideStyles[slide.type]} flex flex-col justify-center print-slide shadow-2xl`}>
+                        <div className="text-center max-w-6xl mx-auto">
+                            {/* Title */}
+                            <h1 className="slide-title text-white drop-shadow-lg">
+                                {slide.title}
+                            </h1>
                             
+                            {/* Subtitle */}
+                            {slide.subtitle && (
+                                <h2 className="slide-subtitle text-white opacity-90 mb-8">
+                                    {slide.subtitle}
+                                </h2>
+                            )}
+
+                            {/* Title slide content */}
                             {slide.type === 'title' && (
-                                <div>
-                                    <p className="text-xl mb-4">{slide.subtitle}</p>
-                                    <div className="flex justify-center items-center space-x-6 text-lg opacity-90">
+                                <div className="space-y-6">
+                                    <div className="flex justify-center items-center space-x-8 text-xl opacity-90">
                                         <span className="flex items-center">
-                                            <Clock className="w-5 h-5 mr-2" />
+                                            <Clock className="w-6 h-6 mr-3" />
                                             {generatedLesson.duration}
                                         </span>
                                         <span className="flex items-center">
-                                            <Users className="w-5 h-5 mr-2" />
+                                            <Users className="w-6 h-6 mr-3" />
                                             {generatedLesson.classSize}
                                         </span>
                                         <span className="flex items-center">
-                                            <Brain className="w-5 h-5 mr-2" />
-                                            AI-Powered Content
+                                            <Sparkles className="w-6 h-6 mr-3" />
+                                            AI-Generated
                                         </span>
                                     </div>
-                                </div>
-                            )}
-                            
-                            {slide.content && (
-                                <div className="text-left max-w-4xl mx-auto">
-                                    {Array.isArray(slide.content) ? (
-                                        slide.content.map((item, index) => (
-                                            <p key={index} className="text-lg mb-3 leading-relaxed">{item}</p>
-                                        ))
-                                    ) : (
-                                        <div className="text-lg leading-relaxed whitespace-pre-line">{slide.content}</div>
+                                    {slide.footer && (
+                                        <p className="text-lg opacity-80">{slide.footer}</p>
                                     )}
                                 </div>
                             )}
-                            
-                            {slide.activity && (
-                                <div className="mt-6 p-4 bg-white bg-opacity-20 rounded-lg">
-                                    <p className="text-lg font-semibold flex items-center justify-center">
-                                        <Play className="w-5 h-5 mr-2" />
-                                        Activity: {slide.activity}
-                                    </p>
-                                    <p className="text-sm mt-2 opacity-90">Duration: {slide.duration} minutes</p>
-                                </div>
-                            )}
-                            
-                            {slide.questions && (
-                                <div className="mt-6 text-left max-w-3xl mx-auto">
-                                    {slide.questions.map((question, index) => (
-                                        <div key={index} className="mb-4 p-3 bg-white bg-opacity-20 rounded-lg">
-                                            <p className="text-lg">Q{index + 1}: {question}</p>
+
+                            {/* Points/List content */}
+                            {slide.points && (
+                                <div className="text-left space-y-4 slide-content">
+                                    {slide.points.map((point, index) => (
+                                        <div key={index} className="flex items-start space-x-4">
+                                            <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 mt-1">
+                                                {index + 1}
+                                            </div>
+                                            <p className="text-white leading-relaxed">{point}</p>
                                         </div>
                                     ))}
+                                </div>
+                            )}
+
+                            {/* Steps content */}
+                            {slide.steps && (
+                                <div className="text-left space-y-4 slide-content">
+                                    {slide.steps.map((step, index) => (
+                                        <div key={index} className="flex items-start space-x-4">
+                                            <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                                                {index + 1}
+                                            </div>
+                                            <p className="text-white leading-relaxed">{step}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Tasks content */}
+                            {slide.tasks && (
+                                <div className="text-left space-y-4 slide-content">
+                                    {slide.tasks.map((task, index) => (
+                                        <div key={index} className="flex items-start space-x-4">
+                                            <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0 mt-1">
+                                                {index + 1}
+                                            </div>
+                                            <p className="text-white leading-relaxed">{task}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Questions content */}
+                            {slide.questions && (
+                                <div className="text-left space-y-4 slide-content">
+                                    {slide.questions.map((question, index) => (
+                                        <div key={index} className="bg-white bg-opacity-10 p-4 rounded-lg">
+                                            <p className="text-white leading-relaxed">
+                                                <span className="font-bold">Q{index + 1}:</span> {question}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Single content */}
+                            {slide.content && !slide.points && !slide.steps && !slide.tasks && !slide.questions && (
+                                <div className="slide-content">
+                                    <div className="bg-white bg-opacity-10 p-6 rounded-lg">
+                                        <p className="text-white leading-relaxed text-center">{slide.content}</p>
+                                        {slide.duration && (
+                                            <div className="mt-4 flex items-center justify-center text-white opacity-80">
+                                                <Clock className="w-5 h-5 mr-2" />
+                                                Duration: {slide.duration}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -497,18 +431,15 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                 const slide = generatedLesson.slides[currentSlide];
                 
                 return (
-                    <div className="max-w-7xl mx-auto p-6">
+                    <div className="max-w-7xl mx-auto p-6 bg-gray-100 min-h-screen">
                         <div className="mb-6 flex justify-between items-center no-print">
                             <div>
                                 <h1 className="text-2xl font-bold text-gray-800 flex items-center">
-                                    <Brain className="w-6 h-6 mr-2 text-purple-600" />
-                                    AI-Generated Lesson | Realtouch Academy
+                                    <Sparkles className="w-6 h-6 mr-2 text-purple-600" />
+                                    Professional Teaching Slides | Realtouch Academy
                                 </h1>
                                 <p className="text-gray-600">{generatedLesson.title} - Slide {currentSlide + 1} of {generatedLesson.slides.length}</p>
-                                <p className="text-sm text-purple-600 font-medium flex items-center">
-                                    <Sparkles className="w-4 h-4 mr-1" />
-                                    Dynamically generated content using OpenAI GPT-4
-                                </p>
+                                <p className="text-sm text-green-600 font-medium">✓ Professionally formatted for classroom presentation</p>
                             </div>
                             <div className="flex space-x-2">
                                 <button 
@@ -522,7 +453,7 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center"
                                 >
                                     <Download className="w-4 h-4 mr-2" />
-                                    Print Lesson
+                                    Print Slides
                                 </button>
                             </div>
                         </div>
@@ -562,44 +493,28 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                 <ChevronRight />
                             </button>
                         </div>
-                        
-                        <div className="mt-6 p-4 bg-gray-50 rounded-lg no-print">
-                            <h3 className="font-semibold text-gray-800 mb-2">AI Generation Details:</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <p className="text-gray-600"><strong>Generated:</strong> {new Date(generatedLesson.generatedAt).toLocaleString()}</p>
-                                    <p className="text-gray-600"><strong>Model:</strong> OpenAI GPT-4</p>
-                                    <p className="text-gray-600"><strong>Duration:</strong> {slide.duration} minutes</p>
-                                </div>
-                                <div>
-                                    <p className="text-gray-600"><strong>Slide:</strong> {currentSlide + 1} of {generatedLesson.slides.length}</p>
-                                    <p className="text-gray-600"><strong>Type:</strong> {slide.type.replace('_', ' ')}</p>
-                                    {slide.teacherNotes && <p className="text-gray-600"><strong>Notes:</strong> {slide.teacherNotes}</p>}
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 );
             }
 
             return (
-                <div className="max-w-5xl mx-auto p-6">
+                <div className="max-w-4xl mx-auto p-6">
                     <div className="text-center mb-8">
-                        <div className="ai-indicator text-white rounded-lg p-8 mb-8">
+                        <div className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-lg p-8 mb-8">
                             <h1 className="text-4xl font-bold mb-2 flex items-center justify-center">
-                                <Brain className="w-10 h-10 mr-3" />
+                                <Sparkles className="w-10 h-10 mr-3" />
                                 Realtouch Academy
                             </h1>
-                            <p className="text-xl opacity-90">AI-Powered Dynamic Lesson Generator</p>
+                            <p className="text-xl opacity-90">Professional Teaching Slides Generator</p>
                             <div className="w-24 h-1 bg-white bg-opacity-50 mx-auto mt-4"></div>
-                            <p className="mt-4 text-lg opacity-80">Generate real curriculum content for ANY topic using advanced AI</p>
+                            <p className="mt-4 text-lg opacity-80">Create classroom-ready slides that teachers can actually use</p>
                         </div>
                     </div>
 
                     <div className="bg-white rounded-lg shadow-lg p-8">
                         <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                            <Sparkles className="w-6 h-6 mr-3 text-purple-600" />
-                            Create Dynamic AI Lesson
+                            <Target className="w-6 h-6 mr-3 text-purple-600" />
+                            Generate Professional Teaching Slides
                         </h2>
 
                         {/* API Key Section */}
@@ -618,8 +533,7 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                     onChange={(e) => setFormData({...formData, apiKey: e.target.value})}
                                 />
                                 <p className="text-xs text-gray-500 mt-1">
-                                    Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" className="text-purple-600 hover:underline">OpenAI Platform</a>. 
-                                    Cost: ~$0.01-0.05 per lesson generated.
+                                    Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" className="text-purple-600 hover:underline">OpenAI Platform</a>
                                 </p>
                             </div>
                         </div>
@@ -637,6 +551,8 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                     <option value="Maths">Mathematics</option>
                                     <option value="English">English</option>
                                     <option value="Science">Science</option>
+                                    <option value="History">History</option>
+                                    <option value="Geography">Geography</option>
                                 </select>
                             </div>
 
@@ -655,17 +571,16 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                 </select>
                             </div>
 
-                            <div>
+                            <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Topic *</label>
                                 <input 
                                     type="text"
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                    placeholder="e.g., Quadratic Equations, Photosynthesis, Romeo and Juliet"
+                                    placeholder="e.g., Fractions and Percentages, The Water Cycle, Romeo and Juliet"
                                     value={formData.topic}
                                     onChange={(e) => setFormData({...formData, topic: e.target.value})}
                                     required
                                 />
-                                <p className="text-xs text-gray-500 mt-1">Enter ANY curriculum topic - AI will generate appropriate content</p>
                             </div>
 
                             <div>
@@ -694,32 +609,17 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                 />
                             </div>
 
-                            <div>
+                            <div className="md:col-span-2">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Specific Requirements</label>
                                 <textarea 
                                     className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                     rows="2"
-                                    placeholder="e.g., Focus on practical applications, include group work, prepare for upcoming assessment..."
+                                    placeholder="e.g., Include visual examples, focus on problem-solving, prepare for assessment..."
                                     value={formData.specificRequirements}
                                     onChange={(e) => setFormData({...formData, specificRequirements: e.target.value})}
                                 />
                             </div>
                         </div>
-
-                        {/* Available Topics Display */}
-                        {formData.keyStage && formData.subject && curriculumFramework[formData.keyStage]?.[formData.subject] && (
-                            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                                <h3 className="font-semibold text-blue-800 mb-2">
-                                    Curriculum Framework: {formData.keyStage} {formData.subject}
-                                </h3>
-                                <p className="text-sm text-blue-700 mb-2">
-                                    {curriculumFramework[formData.keyStage][formData.subject].standards}
-                                </p>
-                                <div className="text-xs text-blue-600">
-                                    Common topics: {curriculumFramework[formData.keyStage][formData.subject].topics.slice(0, 5).join(', ')}...
-                                </div>
-                            </div>
-                        )}
 
                         <div className="mt-8 text-center">
                             <button 
@@ -730,17 +630,17 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                                 {isGenerating ? (
                                     <>
                                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                                        Generating with AI...
+                                        Creating Professional Slides...
                                     </>
                                 ) : (
                                     <>
-                                        <Brain className="w-5 h-5 mr-3" />
-                                        Generate AI Lesson Plan
+                                        <Sparkles className="w-5 h-5 mr-3" />
+                                        Generate Professional Teaching Slides
                                     </>
                                 )}
                             </button>
                             <p className="text-sm text-gray-500 mt-2">
-                                {isGenerating ? generationProgress : 'Creates fresh curriculum content using OpenAI GPT-4'}
+                                {isGenerating ? generationProgress : 'Creates clean, classroom-ready slides with proper formatting'}
                             </p>
                         </div>
 
@@ -748,40 +648,31 @@ Respond with a structured JSON object containing the complete lesson plan.`;
                             <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                                 <h3 className="font-semibold text-red-800 mb-2">Generation Error</h3>
                                 <p className="text-red-700 text-sm">{error}</p>
-                                <div className="mt-3 text-xs text-red-600">
-                                    <p>Common issues:</p>
-                                    <ul className="list-disc list-inside mt-1">
-                                        <li>Invalid or expired API key</li>
-                                        <li>Insufficient API credits</li>
-                                        <li>Network connectivity issues</li>
-                                        <li>Topic too vague or inappropriate</li>
-                                    </ul>
-                                </div>
                             </div>
                         )}
 
                         {/* Features */}
                         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <Brain className="w-6 h-6 text-white" />
+                            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-100 rounded-lg">
+                                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <Target className="w-6 h-6 text-white" />
                                 </div>
-                                <h4 className="font-semibold text-gray-800">AI-Powered</h4>
-                                <p className="text-sm text-gray-600 mt-1">OpenAI GPT-4 generates real content</p>
+                                <h4 className="font-semibold text-gray-800">Classroom Ready</h4>
+                                <p className="text-sm text-gray-600 mt-1">Maximum 5 points per slide</p>
                             </div>
                             <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
                                 <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                                    <Target className="w-6 h-6 text-white" />
+                                    <BookOpen className="w-6 h-6 text-white" />
                                 </div>
-                                <h4 className="font-semibold text-gray-800">Curriculum Aligned</h4>
-                                <p className="text-sm text-gray-600 mt-1">Follows UK National Curriculum</p>
+                                <h4 className="font-semibold text-gray-800">Professional Format</h4>
+                                <p className="text-sm text-gray-600 mt-1">Clean, visual hierarchy</p>
                             </div>
-                            <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+                                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-3">
                                     <Sparkles className="w-6 h-6 text-white" />
                                 </div>
-                                <h4 className="font-semibold text-gray-800">Unlimited Topics</h4>
-                                <p className="text-sm text-gray-600 mt-1">Generate lessons for ANY subject</p>
+                                <h4 className="font-semibold text-gray-800">AI-Powered</h4>
+                                <p className="text-sm text-gray-600 mt-1">Real curriculum content</p>
                             </div>
                         </div>
                     </div>
@@ -789,7 +680,7 @@ Respond with a structured JSON object containing the complete lesson plan.`;
             );
         };
 
-        ReactDOM.render(<DynamicLessonGenerator />, document.getElementById('root'));
+        ReactDOM.render(<ProfessionalLessonGenerator />, document.getElementById('root'));
     </script>
 </body>
 </html>
